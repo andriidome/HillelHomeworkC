@@ -1,8 +1,9 @@
-﻿using System;
-namespace CustomLibrary
+using System;
+namespace CustomLibraryInterfaces
 {
-	public interface ICustomTree
-	{
-	}
+	public interface ICustomTree<T>: ICustomCollection<T>
+    {
+		public void Clear();
+    }
 }
 
