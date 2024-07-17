@@ -1,4 +1,6 @@
-﻿using System;
+using System;
+using CustomLibraryInterfaces;
+
 namespace CustomCollections
 {
 	public class CustomNode<T>
@@ -20,7 +22,7 @@ namespace CustomCollections
             {
                 return key;
             }
-            set
+            private set
             {
                 key = value;
             }
@@ -51,7 +53,7 @@ namespace CustomCollections
         }
     }
 
-	public class CustomTree<T> where T : IComparable<T>
+	public class CustomTree<T>: ICustomTree<T> where T : IComparable<T>
     {
 		private CustomNode<T> root;
 		public int Count { get; private set; }
@@ -68,7 +70,7 @@ namespace CustomCollections
             }
         }
 
-        public bool Contains(T? value)
+        public bool Contains(T value)
         {
             return Contains(Root, value);
         }
@@ -89,7 +91,6 @@ namespace CustomCollections
                 return Contains(root.Right, value);
             }
         }
-
 
         public void Add(T? value)
         {
@@ -113,6 +114,23 @@ namespace CustomCollections
             else if (comparisonResult > 0)
             {
                 root.Right = Add(root.Right, value);
+            }
+
+            return root;
+        }
+
+        public void Clear()
+        {
+            Clear(root);
+        }
+
+        private CustomNode<T>? Clear(CustomNode<T>? root)
+        {
+            if (root != null)
+            {
+                Clear(root.Left);
+                Clear(root.Right);
+                root = null;
             }
 
             return root;
