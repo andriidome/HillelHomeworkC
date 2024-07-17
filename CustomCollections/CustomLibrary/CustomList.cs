@@ -1,7 +1,9 @@
-﻿using System;
+using System;
+using CustomLibraryInterfaces;
+
 namespace CustomCollections
 {
-	public class CustomList<T>
+	public class CustomList<T>:ICustomList<T>
 	{
 		private T?[] underlyingArray;
         private int capacity;
@@ -79,8 +81,6 @@ namespace CustomCollections
             underlyingArray[index] = obj;
 
             usedCapacity++;
-
-
         }
 
         public void Remove(T obj)
