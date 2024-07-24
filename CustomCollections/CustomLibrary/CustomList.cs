@@ -3,11 +3,10 @@ using CustomLibraryInterfaces;
 
 namespace CustomCollections
 {
-	public class CustomList<T>:ICustomList<T>
+	public class CustomList<T>:ICustomList<T>, IListReportingChanges<T>
 	{
 		private T?[] underlyingArray;
         private int capacity;
-
         private int usedCapacity = 0;
 
 		public CustomList(int capacity = 4)
@@ -48,6 +47,14 @@ namespace CustomCollections
 
             underlyingArray[usedCapacity] = obj;
             usedCapacity++;
+
+            IListReportingChanges<T>.ItemAddedEventArgs e = new IListReportingChanges<T>.ItemAddedEventArgs();
+            e.AddedItem = obj;
+
+            if (ItemAdded != null)
+            {
+                ItemAdded.Invoke(this, e);
+            }
         }
 
         private void EnsureCapacity(int projectedCapacity)
@@ -81,12 +88,29 @@ namespace CustomCollections
             underlyingArray[index] = obj;
 
             usedCapacity++;
+
+            IListReportingChanges<T>.ItemInsertedEventArgs e = new IListReportingChanges<T>.ItemInsertedEventArgs();
+            e.Item = obj;
+            e.Index = index;
+
+            if (ItemInserted != null)
+            {
+                ItemInserted.Invoke(this, e);
+            }
         }
 
         public void Remove(T obj)
         {
             int index = IndexOf(obj);
             RemoveAt(index);
+
+            IListReportingChanges<T>.ItemRemovedEventArgs e = new IListReportingChanges<T>.ItemRemovedEventArgs();
+            e.RemovedItem = obj;
+
+            if (ItemRemoved != null)
+            {
+                ItemRemoved.Invoke(this, e);
+            }
         }
 
         public void RemoveAt(int index)
@@ -95,6 +119,8 @@ namespace CustomCollections
             {
                 throw new IndexOutOfRangeException();
             }
+
+            T? obj = this[index];
 
             if (index == usedCapacity - 1)
             {
@@ -114,6 +140,14 @@ namespace CustomCollections
                 }
                 underlyingArray[underlyingArray.Length - 1] = default(T);
                 usedCapacity--;
+            }
+
+            IListReportingChanges<T>.ItemRemovedEventArgs e = new IListReportingChanges<T>.ItemRemovedEventArgs();
+            e.RemovedItem = obj;
+
+            if (ItemRemoved != null)
+            {
+                ItemRemoved.Invoke(this, e);
             }
         }
 
@@ -186,6 +220,28 @@ namespace CustomCollections
                 underlyingArray[index] = value;
             }
         }
+
+        public event EventHandler<IListReportingChanges<T>.ItemAddedEventArgs>? ItemAdded;
+
+        public event EventHandler<IListReportingChanges<T>.ItemRemovedEventArgs>? ItemRemoved;
+
+        public event EventHandler<IListReportingChanges<T>.ItemInsertedEventArgs>? ItemInserted;
+
+        protected virtual void OnItemAdded(IListReportingChanges<T>.ItemAddedEventArgs e)
+        {
+            ItemAdded?.Invoke(this, e);
+        }
+
+        protected virtual void OnItemRemoved(IListReportingChanges<T>.ItemRemovedEventArgs e)
+        {
+            ItemRemoved?.Invoke(this, e);
+        }
+
+        protected virtual void OnItemInserted(IListReportingChanges<T>.ItemInsertedEventArgs e)
+        {
+            ItemInserted?.Invoke(this, e);
+        }
+
     }
 }
 
